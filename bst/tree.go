@@ -2,10 +2,12 @@ package bsarbol
 
 import "fmt"
 
+// BST defines a Binary Search Tree structure
 type BST struct {
 	Root *Node
 }
 
+// Node defines the nodes for the Binary Search Tree
 type Node struct {
 	Data        int
 	Left, Right *Node
