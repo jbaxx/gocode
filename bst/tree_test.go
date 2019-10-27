@@ -102,7 +102,7 @@ func TestNaiveInsert(t *testing.T) {
 
 		bst := &BST{}
 
-		for _, elem := range wantReversed {
+		for _, elem := range want {
 			bst.NaiveInsert(elem)
 		}
 
