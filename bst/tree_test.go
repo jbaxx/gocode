@@ -102,15 +102,9 @@ func TestNaiveInsert(t *testing.T) {
 
 		bst := &BST{}
 
-		bst.NaiveInsert(1)
-		bst.NaiveInsert(3)
-		bst.NaiveInsert(4)
-		bst.NaiveInsert(5)
-		bst.NaiveInsert(6)
-		bst.NaiveInsert(7)
-		bst.NaiveInsert(9)
-		bst.NaiveInsert(10)
-		bst.NaiveInsert(12)
+		for _, elem := range wantReversed {
+			bst.NaiveInsert(elem)
+		}
 
 		bst.Traverse(func(v int) {
 			got = append(got, v)
@@ -128,18 +122,9 @@ func TestNaiveInsert(t *testing.T) {
 
 		bst := &BST{}
 
-		bst.NaiveInsert(1)
-		bst.NaiveInsert(3)
-		bst.NaiveInsert(4)
-		bst.NaiveInsert(4)
-		bst.NaiveInsert(4)
-		bst.NaiveInsert(5)
-		bst.NaiveInsert(6)
-		bst.NaiveInsert(7)
-		bst.NaiveInsert(7)
-		bst.NaiveInsert(9)
-		bst.NaiveInsert(10)
-		bst.NaiveInsert(12)
+		for _, elem := range want {
+			bst.NaiveInsert(elem)
+		}
 
 		bst.Traverse(func(v int) {
 			got = append(got, v)
@@ -154,18 +139,13 @@ func TestNaiveInsert(t *testing.T) {
 	t.Run("NaiveInsert in reverse order", func(t *testing.T) {
 		var got []int
 		want := []int{1, 3, 4, 5, 6, 7, 9, 10, 12}
+		wantReversed := []int{12, 10, 9, 7, 6, 5, 4, 3, 1}
 
 		bst := &BST{}
 
-		bst.NaiveInsert(12)
-		bst.NaiveInsert(10)
-		bst.NaiveInsert(9)
-		bst.NaiveInsert(7)
-		bst.NaiveInsert(6)
-		bst.NaiveInsert(5)
-		bst.NaiveInsert(4)
-		bst.NaiveInsert(3)
-		bst.NaiveInsert(1)
+		for _, elem := range wantReversed {
+			bst.NaiveInsert(elem)
+		}
 
 		bst.Traverse(func(v int) {
 			got = append(got, v)
