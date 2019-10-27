@@ -1,3 +1,4 @@
+// Package bsarbol implements a Binary Search Tree
 package bsarbol
 
 import "fmt"
