@@ -92,6 +92,22 @@ func TestTraverse(t *testing.T) {
 
 	})
 
+	t.Run("Breadth First Search Traversal with root-node struct", func(t *testing.T) {
+
+		var got []int
+		want := []int{7, 5, 10, 3, 6, 9, 12, 1, 4}
+
+		bst.Traverse(func(v int) {
+			got = append(got, v)
+		},
+			"bfs")
+
+		if !reflect.DeepEqual(want, got) {
+			t.Errorf("got %d; want %d", got, want)
+		}
+
+	})
+
 }
 
 func TestNaiveInsert(t *testing.T) {
