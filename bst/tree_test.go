@@ -134,11 +134,12 @@ func TestNaiveInsert(t *testing.T) {
 
 	t.Run("NaiveInsert with duplicates", func(t *testing.T) {
 		var got []int
+		dups := []int{1, 3, 4, 4, 4, 5, 6, 7, 7, 9, 10, 12}
 		want := []int{1, 3, 4, 5, 6, 7, 9, 10, 12}
 
 		bst := &BST{}
 
-		for _, elem := range want {
+		for _, elem := range dups {
 			bst.NaiveInsert(elem)
 		}
 

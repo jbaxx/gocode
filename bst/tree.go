@@ -67,6 +67,11 @@ func (b *BST) Traverse(fn func(value int), traverseType string) {
 func (n *Node) BFSTraversal(fn func(value int)) {
 	var buffer []*Node
 	var p *Node
+	//counter keeps track of remaining elements in quere in current level
+	var counter int
+	//level keeps track of the depth of the tree
+	//TODO: add level as tree/node attribute and write test
+	var level int
 
 	buffer = append([]*Node{n}, buffer...)
 
@@ -83,6 +88,13 @@ func (n *Node) BFSTraversal(fn func(value int)) {
 		if p.Right != nil {
 			buffer = append([]*Node{p.Right}, buffer...)
 		}
+
+		if counter == 0 {
+			level++
+			counter = len(buffer)
+		}
+		counter--
+
 	}
 }
 
