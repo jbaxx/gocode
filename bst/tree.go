@@ -1,7 +1,9 @@
 // Package bsarbol implements a Binary Search Tree
 package bsarbol
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // BST defines a Binary Search Tree structure
 type BST struct {
@@ -42,19 +44,45 @@ type Node struct {
 // Traverse method traverses the tree applying a function
 // to each Data element of the tree nodes.
 // The tree can be traversed Pre Order, In Order and Post Order.
-func (r *BST) Traverse(fn func(value int), traverseType string) {
+func (b *BST) Traverse(fn func(value int), traverseType string) {
 
 	if traverseType == "" {
 		traverseType = "inorder"
 	}
 
 	switch traverseType {
+	case "bfs":
+		b.Root.BFSTraversal(fn)
 	case "preorder":
-		r.Root.PreOrderTraversal(fn)
+		b.Root.PreOrderTraversal(fn)
 	case "postorder":
-		r.Root.PostOrderTraversal(fn)
+		b.Root.PostOrderTraversal(fn)
 	default:
-		r.Root.InOrderTraversal(fn)
+		b.Root.InOrderTraversal(fn)
+	}
+}
+
+// BFSTraversal is called by the Traverse method
+// to traverse the tree in Breadth First Search order and applies the supplied function.
+func (n *Node) BFSTraversal(fn func(value int)) {
+	var buffer []*Node
+	var p *Node
+
+	buffer = append([]*Node{n}, buffer...)
+
+	for len(buffer) > 0 {
+		//Pop on back
+		p, buffer = buffer[len(buffer)-1], buffer[:len(buffer)-1]
+
+		fn(p.Data)
+
+		//Push on front
+		if p.Left != nil {
+			buffer = append([]*Node{p.Left}, buffer...)
+		}
+		if p.Right != nil {
+			buffer = append([]*Node{p.Right}, buffer...)
+		}
 	}
 }
 
@@ -100,12 +128,12 @@ func PrintNode(value int) {
 // NaiveInsert inserts the supplied data value into the tree
 // is very naive and makes the insertion without balancing the tree.
 // Also allocates the Root node in case it's not present.
-func (r *BST) NaiveInsert(data int) {
-	if r.Root == nil {
-		r.Root = &Node{Data: data}
+func (b *BST) NaiveInsert(data int) {
+	if b.Root == nil {
+		b.Root = &Node{Data: data}
 		return
 	}
-	r.Root.NodeNaiveInsert(data)
+	b.Root.NodeNaiveInsert(data)
 }
 
 // NodeNaiveInsert is called by the NaiveInsert method to allocate
