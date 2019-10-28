@@ -3,13 +3,11 @@ package bsarbol
 
 import (
 	"fmt"
-	//	"time"
 )
 
 // BST defines a Binary Search Tree structure
 type BST struct {
-	Root  *Node
-	level *int
+	Root *Node
 }
 
 // Node defines the nodes for the Binary Search Tree
