@@ -80,7 +80,6 @@ func (n *Node) BFSTraversal(fn func(value int)) {
 		p, buffer = buffer[len(buffer)-1], buffer[:len(buffer)-1]
 
 		fn(p.Data)
-		fmt.Printf("Level: %d -> Node: %d\n", level, p.Data)
 
 		//Push on front
 		if p.Left != nil {
