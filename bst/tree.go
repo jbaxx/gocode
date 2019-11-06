@@ -107,6 +107,13 @@ func (n *Node) PreOrderTraversal(fn func(value int)) {
 	fn(n.Data)
 	n.Left.PreOrderTraversal(fn)
 	n.Right.PreOrderTraversal(fn)
+	//fn(n.Data)
+	//if n.Left != nil {
+	//	n.Left.PreOrderTraversal(fn)
+	//}
+	//if n.Right != nil {
+	//	n.Right.PreOrderTraversal(fn)
+	//}
 }
 
 // InOrderTraversal is called by the Traverse method
@@ -129,6 +136,47 @@ func (n *Node) PostOrderTraversal(fn func(value int)) {
 	n.Left.PostOrderTraversal(fn)
 	n.Right.PostOrderTraversal(fn)
 	fn(n.Data)
+}
+
+// TraverseLevel method traverses the tree applying a function
+// to each Data element of the tree nodes.
+func (b *BST) TraverseLevel(fnl func(value int, level *int), traverseType string) {
+
+	if traverseType == "" {
+		traverseType = "iot"
+	}
+
+	//var level *int
+	//*level = 0
+	level := -1
+
+	switch traverseType {
+	case "iot":
+		b.Root.IOT(fnl, &level)
+	default:
+		b.Root.IOT(fnl, &level)
+	}
+}
+
+// IOT is called by the TraverseLevel method
+// to traverse the tree in In Order order and applies the supplied function.
+func (n *Node) IOT(fnl func(value int, l *int), level *int) {
+
+	*level += 1
+
+	if n.Left != nil {
+		n.Left.IOT(fnl, level)
+	}
+
+	fmt.Printf("Level: %d; Data: %d\n", *level, n.Data)
+	fnl(n.Data, level)
+
+	if n.Right != nil {
+		n.Right.IOT(fnl, level)
+	}
+
+	*level -= 1
+
 }
 
 // PrintNode is an auxiliary function to supply to Traverse method
