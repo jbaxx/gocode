@@ -311,26 +311,20 @@ func (b *BST) PrittyPrint() {
 func (n *Node) prittyNode(p *Pretier) {
 
 	if n.Right != nil {
-		p.IsLeft = false
 		n.Right.prittyNode(p)
 	}
 
-	// if p.IsLeft == true {
 	PrintData(n.Data, p.Max)
 	fmt.Println()
-	// }
 
 	if n.Left != nil {
-		p.IsLeft = true
 		n.Left.prittyNode(p)
 	}
 
 }
 
 func PrintData(data, max int) {
-
 	printData(os.Stdout, data, max)
-
 }
 
 func printData(writer io.Writer, data, max int) {
