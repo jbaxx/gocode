@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -285,7 +284,7 @@ const (
 	UP_RIGHT   = "└" // 2514 192
 	DOWN_RIGHT = "┌" // 250C 218
 	DOWN_LEFT  = "┐" // 2510 191
-
+	SPACE      = " "
 )
 
 // Pretier holds metadata that will help
@@ -312,15 +311,17 @@ func (b *BST) PrittyPrint() {
 func (n *Node) prittyNode(p *Pretier) {
 
 	if n.Right != nil {
+		p.IsLeft = false
 		n.Right.prittyNode(p)
 	}
 
-	//if p.IsLeft == true {
+	// if p.IsLeft == true {
 	PrintData(n.Data, p.Max)
 	fmt.Println()
-	//}
+	// }
 
 	if n.Left != nil {
+		p.IsLeft = true
 		n.Left.prittyNode(p)
 	}
 
@@ -328,55 +329,19 @@ func (n *Node) prittyNode(p *Pretier) {
 
 func PrintData(data, max int) {
 
-	printDataBytes(os.Stdout, data, max)
+	printData(os.Stdout, data, max)
 
 }
 
-func printDataStrings(writer io.Writer, data, max int) {
+func printData(writer io.Writer, data, max int) {
 
-	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
+	sdata := []byte(strconv.Itoa(data))
+	maxRunes := utf8.RuneCountInString(strconv.Itoa(max))
 
-	var sdataBlock strings.Builder
-	sdataBlock.WriteString(strconv.Itoa(data))
-
-	var s string
-
-	for maxRuneCount > sdataBlock.Len() {
-		s = sdataBlock.String()
-		sdataBlock.Reset()
-		sdataBlock.WriteString(" " + s)
+	if l := maxRunes - len(sdata); l > 0 {
+		sdata = append(bytes.Repeat([]byte(SPACE), l), sdata...)
 	}
 
-	fmt.Fprintf(writer, "[%s]", sdataBlock.String())
-
-}
-
-const BLANK = " "
-
-func printDataBytes(writer io.Writer, data, max int) {
-
-	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
-
-	s := []byte(strconv.Itoa(data))
-
-	for maxRuneCount > len(s) {
-		s = append([]byte(" "), s...)
-	}
-
-	fmt.Fprintf(writer, "[%s]", string(s))
-
-}
-
-func printDataBytesMath(writer io.Writer, data, max int) {
-
-	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
-
-	s := []byte(strconv.Itoa(data))
-
-	if l := maxRuneCount - len(s); l > 0 {
-		s = append(bytes.Repeat([]byte(BLANK), l), s...)
-	}
-
-	fmt.Fprintf(writer, "[%s]", string(s))
+	fmt.Fprintf(writer, "[%s]", string(sdata))
 
 }
