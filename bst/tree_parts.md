@@ -216,21 +216,82 @@
                    └─[ 1]
 
 
+### Ready prototype
+                   ┌─[18]
+            ┌─[16]─┘
+     ┌─[14]─┤
+     │      │      ┌─[13]
+     │      └─[12]─┤
+     │             │      ┌─[11]
+     │             └─[10]─┤
+     │                    └─[ 9]
+[ 7]─┤
+     │
+     │
+     │
+     │
+     │      ┌─[ 6]
+     └─[ 5]─┤    
+            │      ┌─[ 4]
+            └─[ 3]─┤
+                   └─[ 1]
+
+
+### Ready prototype with blanks
+                         ┌ ─ [18]
+
+              ┌ ─ [16] ─ ┘
+
+     ┌─[14] ─ ┤ 
+
+     │        │          ┌ ─ [13]
+
+     │        └ ─ [12] ─ ┤ 
+
+     │                   │          ┌ ─ [11]
+
+     │                   └ ─ [10] ─ ┤ 
+
+     │                              └ ─ [ 9]
+
+[ 7]─┤
+
+     │
+
+     │      ┌─[ 6]
+
+     └─[ 5]─┤    
+
+            │      ┌─[ 4]
+
+            └─[ 3]─┤
+
+                   └─[ 1]
 
 
 
+│ 2502 179 BOX DRAWINGS LIGHT VERTICAL
 
-│ 2502 179
+┤ 2524 180 BOX DRAWINGS LIGHT VERTICAL AND LEFT
 
-┤ 2524 180
+┌ 250C 218 BOX DRAWINGS LIGHT DOWN AND RIGHT
 
-┌ 250C 218
+┘ 2518 217 BOX DRAWINGS LIGHT UP AND LEFT
 
-┘ 2518 217
+┐ 2510 191 BOX DRAWINGS LIGHT DOWN AND LEFT
 
-┐ 2510 191
+└ 2514 192 BOX DRAWINGS LIGHT UP AND RIGHT
 
-└ 2514 192
+─ 2500 196 BOX DRAWINGS LIGHT HORIZONTAL
+
+
+VERT       = "│" //2502 179 
+VERT_LEFT  = "┤" //2524 180 
+DOWN_RIGHT = "┌" //250C 218 
+UP_LEFT    = "┘" //2518 217 
+DOWN_LEFT  = "┐" //2510 191 
+UP_RIGHT   = "└" //2514 192 
+HORIZONTAL = "─" 2500 196 
 
 
 

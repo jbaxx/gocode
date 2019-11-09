@@ -2,7 +2,13 @@
 package bsarbol
 
 import (
+	_ "bytes"
 	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"strings"
+	"unicode/utf8"
 )
 
 // BST defines a Binary Search Tree structure
@@ -213,4 +219,148 @@ func (n *Node) NodeNaiveInsert(data int) {
 		}
 		n.Right.NodeNaiveInsert(data)
 	}
+}
+
+// ### Ready prototype
+// 012345678900123456789001234567890
+//                    ┌─[18]
+//             ┌─[16]─┘
+//      ┌─[14]─┤
+//      │      │      ┌─[13]
+//      │      └─[12]─┤
+//      │             │      ┌─[11]
+//      │             └─[10]─┤
+//      │                    └─[ 9]
+// [ 7]─┤
+//      │
+//      │
+//      │
+//      │
+//      │      ┌─[ 6]
+//      └─[ 5]─┤
+//             │      ┌─[ 4]
+//             └─[ 3]─┤
+//                    └─[ 1]
+//
+//
+// ### Ready prototype with blanks
+// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
+//
+//                            ┌ ─ [18]
+//
+//                 ┌ ─ [16] ─ ┘
+//
+//      ┌ ─ [14] ─ ┤
+//
+//      │          │          ┌ ─ [13]
+//
+//      │          └ ─ [12] ─ ┤
+//
+//      │                     │          ┌ ─ [11]
+//
+//      │                     └ ─ [10] ─ ┤
+//
+//      │                                └ ─ [ 9]
+//
+// [ 7]─┤
+//
+//      │
+//
+//      │         ┌─ [ 6]
+//
+//      └ ─ [ 5]─ ┤
+//
+//                │         ┌ ─ [ 4]
+//
+//                └─ [ 3] ─ ┤
+//
+//                          └ ─ [ 1]
+
+const (
+	VERT = "│" // 2502 179
+
+	VERT_LEFT  = "┤" // 2524 180
+	HORIZONTAL = "─" // 2500 196
+	UP_LEFT    = "┘" // 2518 217
+	UP_RIGHT   = "└" // 2514 192
+	DOWN_RIGHT = "┌" // 250C 218
+	DOWN_LEFT  = "┐" // 2510 191
+
+)
+
+// Pretier holds metadata that will help
+// format the printed tree
+type Pretier struct {
+	// IsLeft tells if we are in a left or right child
+	IsLeft bool
+	// Max tells the biggest number of the tree
+	// This helps format the node block spaces
+	Max int
+}
+
+func (b *BST) PrittyPrint() {
+
+	// TODO: This hardcoded values need to be calculated
+	pt := &Pretier{
+		IsLeft: false,
+		Max:    18,
+	}
+
+	b.Root.prittyNode(pt)
+}
+
+func (n *Node) prittyNode(p *Pretier) {
+
+	if n.Right != nil {
+		n.Right.prittyNode(p)
+	}
+
+	//if p.IsLeft == true {
+	PrintData(n.Data, p.Max)
+	fmt.Println()
+	//}
+
+	if n.Left != nil {
+		n.Left.prittyNode(p)
+	}
+
+}
+
+func PrintData(data, max int) {
+
+	printData(os.Stdout, data, max)
+
+}
+
+func printData(writer io.Writer, data, max int) {
+
+	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
+
+	var sdataBlock strings.Builder
+	sdataBlock.WriteString(strconv.Itoa(data))
+
+	var s string
+
+	for maxRuneCount > sdataBlock.Len() {
+		s = sdataBlock.String()
+		sdataBlock.Reset()
+		sdataBlock.WriteString(" " + s)
+	}
+
+	fmt.Fprintf(writer, "[%s]\n", sdataBlock.String())
+
+}
+
+func printDataB(writer io.Writer, data, max int) {
+
+	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
+
+	s := []byte(strconv.Itoa(data))
+
+	for maxRuneCount > len(s) {
+		s = append([]byte(" "), s...)
+	}
+
+	fmt.Fprintf(writer, "[%s]\n", string(s))
+
 }
