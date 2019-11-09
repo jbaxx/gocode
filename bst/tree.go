@@ -2,7 +2,7 @@
 package bsarbol
 
 import (
-	_ "bytes"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -328,11 +328,11 @@ func (n *Node) prittyNode(p *Pretier) {
 
 func PrintData(data, max int) {
 
-	printData(os.Stdout, data, max)
+	printDataBytes(os.Stdout, data, max)
 
 }
 
-func printData(writer io.Writer, data, max int) {
+func printDataStrings(writer io.Writer, data, max int) {
 
 	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
 
@@ -347,11 +347,13 @@ func printData(writer io.Writer, data, max int) {
 		sdataBlock.WriteString(" " + s)
 	}
 
-	fmt.Fprintf(writer, "[%s]\n", sdataBlock.String())
+	fmt.Fprintf(writer, "[%s]", sdataBlock.String())
 
 }
 
-func printDataB(writer io.Writer, data, max int) {
+const BLANK = " "
+
+func printDataBytes(writer io.Writer, data, max int) {
 
 	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
 
@@ -361,6 +363,20 @@ func printDataB(writer io.Writer, data, max int) {
 		s = append([]byte(" "), s...)
 	}
 
-	fmt.Fprintf(writer, "[%s]\n", string(s))
+	fmt.Fprintf(writer, "[%s]", string(s))
+
+}
+
+func printDataBytesMath(writer io.Writer, data, max int) {
+
+	maxRuneCount := utf8.RuneCountInString(strconv.Itoa(max))
+
+	s := []byte(strconv.Itoa(data))
+
+	if l := maxRuneCount - len(s); l > 0 {
+		s = append(bytes.Repeat([]byte(BLANK), l), s...)
+	}
+
+	fmt.Fprintf(writer, "[%s]", string(s))
 
 }

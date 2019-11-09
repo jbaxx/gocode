@@ -223,7 +223,7 @@ func TestNaiveInsert(t *testing.T) {
 
 }
 
-func TestPrintData(t *testing.T) {
+func TestPrintDataBytes(t *testing.T) {
 
 	cases := []struct {
 		name string
@@ -268,7 +268,7 @@ func TestPrintData(t *testing.T) {
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 
-			printDataB(&buffer, test.data, test.max)
+			printDataBytes(&buffer, test.data, test.max)
 			got := buffer.String()
 			got = strings.TrimSuffix(got, "\n")
 			defer buffer.Reset()
@@ -282,7 +282,7 @@ func TestPrintData(t *testing.T) {
 
 }
 
-func TestPrintDataDos(t *testing.T) {
+func TestPrintDataStrings(t *testing.T) {
 
 	cases := []struct {
 		name string
@@ -327,7 +327,7 @@ func TestPrintDataDos(t *testing.T) {
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 
-			printData(&builder, test.data, test.max)
+			printDataStrings(&builder, test.data, test.max)
 			got := builder.String()
 			got = strings.TrimSuffix(got, "\n")
 			defer builder.Reset()
@@ -341,27 +341,40 @@ func TestPrintDataDos(t *testing.T) {
 
 }
 
-func BenchmarkPrintData(b *testing.B) {
+func BenchmarkPrintDataBytes(b *testing.B) {
 	builder := strings.Builder{}
 
 	data := 32
 	max := 124497
 
 	for i := 0; i < b.N; i++ {
-		printData(&builder, data, max)
+		printDataBytes(&builder, data, max)
 		builder.Reset()
 	}
 
 }
 
-func BenchmarkPrintDataB(b *testing.B) {
+func BenchmarkPrintDataBytesMath(b *testing.B) {
 	builder := strings.Builder{}
 
 	data := 32
 	max := 124497
 
 	for i := 0; i < b.N; i++ {
-		printDataB(&builder, data, max)
+		printDataBytesMath(&builder, data, max)
+		builder.Reset()
+	}
+
+}
+
+func BenchmarkPrintDataStrings(b *testing.B) {
+	builder := strings.Builder{}
+
+	data := 32
+	max := 124497
+
+	for i := 0; i < b.N; i++ {
+		printDataStrings(&builder, data, max)
 		builder.Reset()
 	}
 
