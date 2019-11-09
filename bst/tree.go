@@ -290,19 +290,16 @@ const (
 // Pretier holds metadata that will help
 // format the printed tree
 type Pretier struct {
-	// IsLeft tells if we are in a left or right child
-	IsLeft bool
 	// Max tells the biggest number of the tree
 	// This helps format the node block spaces
 	Max int
 }
 
-func (b *BST) PrittyPrint() {
+func (b *BST) PrittyRoot() {
 
 	// TODO: This hardcoded values need to be calculated
 	pt := &Pretier{
-		IsLeft: false,
-		Max:    18,
+		Max: 18,
 	}
 
 	b.Root.prittyNode(pt)
