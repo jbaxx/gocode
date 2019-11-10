@@ -142,7 +142,7 @@ func TestTraverseLevel(t *testing.T) {
 
 		bst.TraverseLevel(func(v int, l Tracker) {
 			valueGot = append(valueGot, v)
-			levelGot = append(levelGot, l.GetLevel())
+			levelGot = append(levelGot, l.GetDepth())
 		},
 			"iot")
 
@@ -279,6 +279,25 @@ func TestPrintDataBytes(t *testing.T) {
 
 		})
 	}
+
+	t.Run("Expect error: Data: 3 runes, max: 2 runes", func(t *testing.T) {
+
+		data := 323
+		max := 12
+
+		err := printData(&buffer, data, max)
+		got := buffer.String()
+		got = strings.TrimSuffix(got, "\n")
+		defer buffer.Reset()
+
+		if err == nil {
+			t.Errorf("expected error, got nil")
+		}
+
+		if e, ok := err.(*ErrMaxRuneCount); !ok {
+			t.Errorf("expected error type: *ErrMaxRuneCount; got instead %#v AND %#v", e, err)
+		}
+	})
 
 }
 

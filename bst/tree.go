@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"unicode/utf8"
@@ -19,6 +20,13 @@ type BST struct {
 type Node struct {
 	Data        int
 	Left, Right *Node
+}
+
+type Tracker interface {
+	SetDepth(i int)
+	GetDepth() int
+	Increment()
+	Decrement()
 }
 
 //                 7
@@ -131,23 +139,16 @@ func (n *nodeLevel) Decrement() {
 	n.level--
 }
 
-func (n *nodeLevel) SetLevel(i int) {
+func (n *nodeLevel) SetDepth(i int) {
 	n.level = i
 }
 
-func (n *nodeLevel) GetLevel() int {
+func (n *nodeLevel) GetDepth() int {
 	return n.level
 }
 
 func NewNodeLevel() *nodeLevel {
 	return &nodeLevel{level: 0}
-}
-
-type Tracker interface {
-	SetLevel(i int)
-	GetLevel() int
-	Increment()
-	Decrement()
 }
 
 // TraverseLevel method traverses the tree applying a function
@@ -161,7 +162,7 @@ func (b *BST) TraverseLevel(fnl func(value int, levelTracker Tracker), traverseT
 	//var level *int
 	//*level = 0
 	lev := NewNodeLevel()
-	lev.SetLevel(-1)
+	lev.SetDepth(-1)
 
 	switch traverseType {
 	case "iot":
@@ -182,7 +183,7 @@ func (n *Node) IOT(fnl func(value int, levelTracker Tracker), level Tracker) {
 		n.Left.IOT(fnl, level)
 	}
 
-	fmt.Printf("Level: %d; Data: %d\n", level.GetLevel(), n.Data)
+	fmt.Printf("Level: %d; Data: %d\n", level.GetDepth(), n.Data)
 	fnl(n.Data, level)
 
 	if n.Right != nil {
@@ -227,7 +228,7 @@ func (n *Node) NodeNaiveInsert(data int) {
 	}
 }
 
-// ### Ready prototype
+// ### Tree Print Ready prototype
 // 012345678900123456789001234567890
 //                    ┌─[18]
 //             ┌─[16]─┘
@@ -282,6 +283,7 @@ func (n *Node) NodeNaiveInsert(data int) {
 //
 //                          └ ─ [ 1]
 
+// https://unicode.org/cldr/utility/character.jsp?a=2500&B1=Show
 const (
 	VERT = "│" // 2502 179
 
@@ -294,52 +296,100 @@ const (
 	SPACE      = " "
 )
 
-// Pretier holds metadata that will help
+// metaFormat holds metadata that will help
 // format the printed tree
-type Pretier struct {
+type metaFormat struct {
 	// Max tells the biggest number of the tree
 	// This helps format the node block spaces
 	Max int
+	// depth keeps track of the current visited node depth
+	depth int
+}
+
+func (m *metaFormat) Increment() {
+	m.depth++
+}
+
+func (m *metaFormat) Decrement() {
+	m.depth--
+}
+
+func (m *metaFormat) SetDepth(i int) {
+	m.depth = i
+}
+
+func (m *metaFormat) GetDepth() int {
+	return m.depth
+}
+
+func NewMetaFormat() *metaFormat {
+	return &metaFormat{
+		Max:   20,
+		depth: 0,
+	}
 }
 
 func (b *BST) PrittyRoot() {
 
-	// TODO: This hardcoded values need to be calculated
-	pt := &Pretier{
-		Max: 18,
-	}
+	mf := NewMetaFormat()
+	mf.SetDepth(-1)
 
-	b.Root.prittyNode(pt)
+	b.Root.prittyNode(mf)
 }
 
-func (n *Node) prittyNode(p *Pretier) {
+func (n *Node) prittyNode(m *metaFormat) {
+
+	m.Increment()
+	defer m.Decrement()
 
 	if n.Right != nil {
-		n.Right.prittyNode(p)
+		n.Right.prittyNode(m)
 	}
 
-	PrintData(n.Data, p.Max)
+	// PRINT AREA
+	spacetime := bytes.Repeat([]byte(SPACE), m.GetDepth()*12)
+	fmt.Printf("%s", string(spacetime))
+	if err := PrintData(n.Data, m.Max); err != nil {
+		log.Fatalln("func PrintData failed:", err)
+	}
+	// fmt.Printf(" Level: [%d]", m.GetDepth())
 	fmt.Println()
+	fmt.Println()
+	// PRINT AREA
 
 	if n.Left != nil {
-		n.Left.prittyNode(p)
+		n.Left.prittyNode(m)
 	}
 
 }
 
-func PrintData(data, max int) {
-	printData(os.Stdout, data, max)
+type ErrMaxRuneCount struct {
+	nodeData int
 }
 
-func printData(writer io.Writer, data, max int) {
+func (e *ErrMaxRuneCount) Error() string {
+	return fmt.Sprintf("node [%d]: max rune count smaller than data rune count", e.nodeData)
+}
+
+func PrintData(data, max int) error {
+	return printData(os.Stdout, data, max)
+}
+
+func printData(writer io.Writer, data, max int) error {
 
 	sdata := []byte(strconv.Itoa(data))
 	maxRunes := utf8.RuneCountInString(strconv.Itoa(max))
 
-	if l := maxRunes - len(sdata); l > 0 {
+	l := maxRunes - len(sdata)
+	if l < 0 {
+		return &ErrMaxRuneCount{nodeData: data}
+	}
+
+	if l > 0 {
 		sdata = append(bytes.Repeat([]byte(SPACE), l), sdata...)
 	}
 
 	fmt.Fprintf(writer, "[%s]", string(sdata))
+	return nil
 
 }
