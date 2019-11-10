@@ -273,15 +273,15 @@ func (n *Node) NodeNaiveInsert(data int) {
 //
 //      │
 //
-//      │         ┌─ [ 6]
+//      │         ┌ ─ [ 6]
 //
 //      └ ─ [ 5]─ ┤
 //
-//                │         ┌ ─ [ 4]
+//                │          ┌ ─ [ 4]
 //
-//                └─ [ 3] ─ ┤
+//                └ ─ [ 3] ─ ┤
 //
-//                          └ ─ [ 1]
+//                           └ ─ [ 1]
 
 // https://unicode.org/cldr/utility/character.jsp?a=2500&B1=Show
 const (
