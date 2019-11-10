@@ -140,9 +140,9 @@ func TestTraverseLevel(t *testing.T) {
 		var levelGot []int
 		levelWant := []int{3, 2, 3, 1, 2, 0, 2, 1, 2}
 
-		bst.TraverseLevel(func(v int, l *int) {
+		bst.TraverseLevel(func(v int, l Tracker) {
 			valueGot = append(valueGot, v)
-			levelGot = append(levelGot, *l)
+			levelGot = append(levelGot, l.GetLevel())
 		},
 			"iot")
 

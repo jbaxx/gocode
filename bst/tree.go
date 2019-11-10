@@ -29,23 +29,6 @@ type Node struct {
 //      /  \
 //     1    4
 
-// Pretty print?
-//                        3
-//                       / \
-//                      1   2
-//
-//            3                     3
-//           / \                   / \
-//          1   2                 1   2
-//
-//      3         3              3       3
-//     / \       / \            / \     / \
-//    1   2     1   2          1   2   1   2
-//
-//  3     3     3     3       3     3
-// / \   / \   / \   / \     / \   / \
-//1   2 1   2 1   2 1   2   1   2 1   2
-
 // Traverse method traverses the tree applying a function
 // to each Data element of the tree nodes.
 // The tree can be traversed Pre Order, In Order and Post Order.
@@ -112,13 +95,6 @@ func (n *Node) PreOrderTraversal(fn func(value int)) {
 	fn(n.Data)
 	n.Left.PreOrderTraversal(fn)
 	n.Right.PreOrderTraversal(fn)
-	//fn(n.Data)
-	//if n.Left != nil {
-	//	n.Left.PreOrderTraversal(fn)
-	//}
-	//if n.Right != nil {
-	//	n.Right.PreOrderTraversal(fn)
-	//}
 }
 
 // InOrderTraversal is called by the Traverse method
@@ -143,9 +119,40 @@ func (n *Node) PostOrderTraversal(fn func(value int)) {
 	fn(n.Data)
 }
 
+type nodeLevel struct {
+	level int
+}
+
+func (n *nodeLevel) Increment() {
+	n.level++
+}
+
+func (n *nodeLevel) Decrement() {
+	n.level--
+}
+
+func (n *nodeLevel) SetLevel(i int) {
+	n.level = i
+}
+
+func (n *nodeLevel) GetLevel() int {
+	return n.level
+}
+
+func NewNodeLevel() *nodeLevel {
+	return &nodeLevel{level: 0}
+}
+
+type Tracker interface {
+	SetLevel(i int)
+	GetLevel() int
+	Increment()
+	Decrement()
+}
+
 // TraverseLevel method traverses the tree applying a function
 // to each Data element of the tree nodes.
-func (b *BST) TraverseLevel(fnl func(value int, level *int), traverseType string) {
+func (b *BST) TraverseLevel(fnl func(value int, levelTracker Tracker), traverseType string) {
 
 	if traverseType == "" {
 		traverseType = "iot"
@@ -153,34 +160,34 @@ func (b *BST) TraverseLevel(fnl func(value int, level *int), traverseType string
 
 	//var level *int
 	//*level = 0
-	level := -1
+	lev := NewNodeLevel()
+	lev.SetLevel(-1)
 
 	switch traverseType {
 	case "iot":
-		b.Root.IOT(fnl, &level)
+		b.Root.IOT(fnl, lev)
 	default:
-		b.Root.IOT(fnl, &level)
+		b.Root.IOT(fnl, lev)
 	}
 }
 
 // IOT is called by the TraverseLevel method
 // to traverse the tree in In Order order and applies the supplied function.
-func (n *Node) IOT(fnl func(value int, l *int), level *int) {
+func (n *Node) IOT(fnl func(value int, levelTracker Tracker), level Tracker) {
 
-	*level += 1
+	level.Increment()
+	defer level.Decrement()
 
 	if n.Left != nil {
 		n.Left.IOT(fnl, level)
 	}
 
-	fmt.Printf("Level: %d; Data: %d\n", *level, n.Data)
+	fmt.Printf("Level: %d; Data: %d\n", level.GetLevel(), n.Data)
 	fnl(n.Data, level)
 
 	if n.Right != nil {
 		n.Right.IOT(fnl, level)
 	}
-
-	*level -= 1
 
 }
 
