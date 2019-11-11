@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"unicode/utf8"
@@ -21,6 +22,13 @@ type Node struct {
 	Left, Right *Node
 }
 
+type Tracker interface {
+	SetDepth(i int)
+	GetDepth() int
+	Increment()
+	Decrement()
+}
+
 //                 7
 //              /    \
 //            5       10
@@ -28,23 +36,6 @@ type Node struct {
 //        3      6  9   12
 //      /  \
 //     1    4
-
-// Pretty print?
-//                        3
-//                       / \
-//                      1   2
-//
-//            3                     3
-//           / \                   / \
-//          1   2                 1   2
-//
-//      3         3              3       3
-//     / \       / \            / \     / \
-//    1   2     1   2          1   2   1   2
-//
-//  3     3     3     3       3     3
-// / \   / \   / \   / \     / \   / \
-//1   2 1   2 1   2 1   2   1   2 1   2
 
 // Traverse method traverses the tree applying a function
 // to each Data element of the tree nodes.
@@ -112,13 +103,6 @@ func (n *Node) PreOrderTraversal(fn func(value int)) {
 	fn(n.Data)
 	n.Left.PreOrderTraversal(fn)
 	n.Right.PreOrderTraversal(fn)
-	//fn(n.Data)
-	//if n.Left != nil {
-	//	n.Left.PreOrderTraversal(fn)
-	//}
-	//if n.Right != nil {
-	//	n.Right.PreOrderTraversal(fn)
-	//}
 }
 
 // InOrderTraversal is called by the Traverse method
@@ -143,9 +127,33 @@ func (n *Node) PostOrderTraversal(fn func(value int)) {
 	fn(n.Data)
 }
 
+type nodeLevel struct {
+	level int
+}
+
+func (n *nodeLevel) Increment() {
+	n.level++
+}
+
+func (n *nodeLevel) Decrement() {
+	n.level--
+}
+
+func (n *nodeLevel) SetDepth(i int) {
+	n.level = i
+}
+
+func (n *nodeLevel) GetDepth() int {
+	return n.level
+}
+
+func NewNodeLevel() *nodeLevel {
+	return &nodeLevel{level: 0}
+}
+
 // TraverseLevel method traverses the tree applying a function
 // to each Data element of the tree nodes.
-func (b *BST) TraverseLevel(fnl func(value int, level *int), traverseType string) {
+func (b *BST) TraverseLevel(fnl func(value int, levelTracker Tracker), traverseType string) {
 
 	if traverseType == "" {
 		traverseType = "iot"
@@ -153,34 +161,34 @@ func (b *BST) TraverseLevel(fnl func(value int, level *int), traverseType string
 
 	//var level *int
 	//*level = 0
-	level := -1
+	lev := NewNodeLevel()
+	lev.SetDepth(-1)
 
 	switch traverseType {
 	case "iot":
-		b.Root.IOT(fnl, &level)
+		b.Root.IOT(fnl, lev)
 	default:
-		b.Root.IOT(fnl, &level)
+		b.Root.IOT(fnl, lev)
 	}
 }
 
 // IOT is called by the TraverseLevel method
 // to traverse the tree in In Order order and applies the supplied function.
-func (n *Node) IOT(fnl func(value int, l *int), level *int) {
+func (n *Node) IOT(fnl func(value int, levelTracker Tracker), level Tracker) {
 
-	*level += 1
+	level.Increment()
+	defer level.Decrement()
 
 	if n.Left != nil {
 		n.Left.IOT(fnl, level)
 	}
 
-	fmt.Printf("Level: %d; Data: %d\n", *level, n.Data)
+	fmt.Printf("Level: %d; Data: %d\n", level.GetDepth(), n.Data)
 	fnl(n.Data, level)
 
 	if n.Right != nil {
 		n.Right.IOT(fnl, level)
 	}
-
-	*level -= 1
 
 }
 
@@ -220,7 +228,7 @@ func (n *Node) NodeNaiveInsert(data int) {
 	}
 }
 
-// ### Ready prototype
+// ### Tree Print Ready prototype
 // 012345678900123456789001234567890
 //                    ┌─[18]
 //             ┌─[16]─┘
@@ -265,16 +273,17 @@ func (n *Node) NodeNaiveInsert(data int) {
 //
 //      │
 //
-//      │         ┌─ [ 6]
+//      │         ┌ ─ [ 6]
 //
 //      └ ─ [ 5]─ ┤
 //
-//                │         ┌ ─ [ 4]
+//                │          ┌ ─ [ 4]
 //
-//                └─ [ 3] ─ ┤
+//                └ ─ [ 3] ─ ┤
 //
-//                          └ ─ [ 1]
+//                           └ ─ [ 1]
 
+// https://unicode.org/cldr/utility/character.jsp?a=2500&B1=Show
 const (
 	VERT = "│" // 2502 179
 
@@ -287,52 +296,165 @@ const (
 	SPACE      = " "
 )
 
-// Pretier holds metadata that will help
+// metaFormat holds metadata that will help
 // format the printed tree
-type Pretier struct {
+type metaFormat struct {
 	// Max tells the biggest number of the tree
 	// This helps format the node block spaces
 	Max int
+	// depth keeps track of the current visited node depth
+	depth    int
+	level    map[int]int
+	metadata map[int]*nodeMetadata
+}
+
+type nodeMetadata struct {
+	depth int
+	child string
+}
+
+func (m *metaFormat) Increment() {
+	m.depth++
+}
+
+func (m *metaFormat) Decrement() {
+	m.depth--
+}
+
+func (m *metaFormat) SetDepth(i int) {
+	m.depth = i
+}
+
+func (m *metaFormat) GetDepth() int {
+	return m.depth
+}
+
+func (m *metaFormat) MapNodeDepth(i, data int) {
+	if _, ok := m.level[data]; !ok {
+		m.level[data] = i
+	}
+	if _, ok := m.metadata[data]; !ok {
+		m.metadata[data] = &nodeMetadata{}
+		m.metadata[data].depth = i
+	} else {
+		m.metadata[data].depth = i
+	}
+
+}
+
+func (m *metaFormat) SetChildSide(key int, s string) {
+	if _, ok := m.metadata[key]; !ok {
+		m.metadata[key] = &nodeMetadata{}
+		m.metadata[key].child = s
+	}
+}
+
+func NewMetaFormat() *metaFormat {
+	return &metaFormat{
+		Max:      20,
+		depth:    0,
+		level:    make(map[int]int),
+		metadata: make(map[int]*nodeMetadata),
+	}
 }
 
 func (b *BST) PrittyRoot() {
 
-	// TODO: This hardcoded values need to be calculated
-	pt := &Pretier{
-		Max: 18,
-	}
+	mf := NewMetaFormat()
+	mf.SetDepth(-1)
 
-	b.Root.prittyNode(pt)
+	b.Root.scanNode(mf)
+	b.Root.prittyNode(mf)
+
+	fmt.Println("Print Format: ")
+	for k, v := range mf.metadata {
+		fmt.Printf("Key: %d\tChildSide: %s\tDepth: %d\n", k, (*v).child, (*v).depth)
+		fmt.Printf("Key: %d\tChildSide: %q\tDepth: %v\n", k, v.child, v.depth)
+		fmt.Printf("Key: %d\tmetadata: %#v\n", k, v)
+	}
 }
 
-func (n *Node) prittyNode(p *Pretier) {
+func (n *Node) Peek() int {
+	return n.Data
+}
+
+func (n *Node) scanNode(m *metaFormat) {
+	m.Increment()
+	defer m.Decrement()
 
 	if n.Right != nil {
-		n.Right.prittyNode(p)
+		m.SetChildSide(n.Right.Peek(), "right")
+		n.Right.scanNode(m)
 	}
 
-	PrintData(n.Data, p.Max)
-	fmt.Println()
+	m.MapNodeDepth(m.GetDepth(), n.Data)
 
 	if n.Left != nil {
-		n.Left.prittyNode(p)
+		m.SetChildSide(n.Left.Peek(), "left")
+		n.Left.scanNode(m)
 	}
 
 }
 
-func PrintData(data, max int) {
-	printData(os.Stdout, data, max)
+func (n *Node) prittyNode(m *metaFormat) {
+
+	if n.Right != nil {
+		n.Right.prittyNode(m)
+	}
+
+	// PRINT AREA
+	prof := m.metadata[n.Data].depth
+	if prof < 0 {
+		log.Fatalln("depth count is lower than 0")
+	}
+	spacetimes := bytes.Repeat([]byte(SPACE), prof*12)
+	fmt.Printf("%s", string(spacetimes))
+	if m.metadata[n.Data].child == "right" {
+		fmt.Printf("%s", "┌─")
+	}
+	if m.metadata[n.Data].child == "left" {
+		fmt.Printf("%s", "└─")
+	}
+	if err := PrintData(n.Data, m.Max); err != nil {
+		log.Fatalln("func PrintData failed:", err)
+	}
+	fmt.Println()
+	fmt.Println()
+	// PRINT AREA
+
+	if n.Left != nil {
+		n.Left.prittyNode(m)
+	}
+
 }
 
-func printData(writer io.Writer, data, max int) {
+type ErrMaxRuneCount struct {
+	nodeData int
+}
+
+func (e *ErrMaxRuneCount) Error() string {
+	return fmt.Sprintf("node [%d]: max rune count smaller than data rune count", e.nodeData)
+}
+
+func PrintData(data, max int) error {
+	return printData(os.Stdout, data, max)
+}
+
+func printData(writer io.Writer, data, max int) error {
 
 	sdata := []byte(strconv.Itoa(data))
 	maxRunes := utf8.RuneCountInString(strconv.Itoa(max))
 
-	if l := maxRunes - len(sdata); l > 0 {
+	l := maxRunes - len(sdata)
+	if l < 0 {
+		return &ErrMaxRuneCount{nodeData: data}
+	}
+
+	if l > 0 {
 		sdata = append(bytes.Repeat([]byte(SPACE), l), sdata...)
 	}
 
 	fmt.Fprintf(writer, "[%s]", string(sdata))
+	return nil
 
 }
