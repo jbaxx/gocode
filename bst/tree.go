@@ -303,7 +303,14 @@ type metaFormat struct {
 	// This helps format the node block spaces
 	Max int
 	// depth keeps track of the current visited node depth
+	depth    int
+	level    map[int]int
+	metadata map[int]*nodeMetadata
+}
+
+type nodeMetadata struct {
 	depth int
+	child string
 }
 
 func (m *metaFormat) Increment() {
@@ -322,10 +329,32 @@ func (m *metaFormat) GetDepth() int {
 	return m.depth
 }
 
+func (m *metaFormat) MapNodeDepth(i, data int) {
+	if _, ok := m.level[data]; !ok {
+		m.level[data] = i
+	}
+	if _, ok := m.metadata[data]; !ok {
+		m.metadata[data] = &nodeMetadata{}
+		m.metadata[data].depth = i
+	} else {
+		m.metadata[data].depth = i
+	}
+
+}
+
+func (m *metaFormat) SetChildSide(key int, s string) {
+	if _, ok := m.metadata[key]; !ok {
+		m.metadata[key] = &nodeMetadata{}
+		m.metadata[key].child = s
+	}
+}
+
 func NewMetaFormat() *metaFormat {
 	return &metaFormat{
-		Max:   20,
-		depth: 0,
+		Max:      20,
+		depth:    0,
+		level:    make(map[int]int),
+		metadata: make(map[int]*nodeMetadata),
 	}
 }
 
@@ -334,25 +363,61 @@ func (b *BST) PrittyRoot() {
 	mf := NewMetaFormat()
 	mf.SetDepth(-1)
 
+	b.Root.scanNode(mf)
 	b.Root.prittyNode(mf)
+
+	fmt.Println("Print Format: ")
+	for k, v := range mf.metadata {
+		fmt.Printf("Key: %d\tChildSide: %s\tDepth: %d\n", k, (*v).child, (*v).depth)
+		fmt.Printf("Key: %d\tChildSide: %q\tDepth: %v\n", k, v.child, v.depth)
+		fmt.Printf("Key: %d\tmetadata: %#v\n", k, v)
+	}
+}
+
+func (n *Node) Peek() int {
+	return n.Data
+}
+
+func (n *Node) scanNode(m *metaFormat) {
+	m.Increment()
+	defer m.Decrement()
+
+	if n.Right != nil {
+		m.SetChildSide(n.Right.Peek(), "right")
+		n.Right.scanNode(m)
+	}
+
+	m.MapNodeDepth(m.GetDepth(), n.Data)
+
+	if n.Left != nil {
+		m.SetChildSide(n.Left.Peek(), "left")
+		n.Left.scanNode(m)
+	}
+
 }
 
 func (n *Node) prittyNode(m *metaFormat) {
-
-	m.Increment()
-	defer m.Decrement()
 
 	if n.Right != nil {
 		n.Right.prittyNode(m)
 	}
 
 	// PRINT AREA
-	spacetime := bytes.Repeat([]byte(SPACE), m.GetDepth()*12)
-	fmt.Printf("%s", string(spacetime))
+	prof := m.metadata[n.Data].depth
+	if prof < 0 {
+		log.Fatalln("depth count is lower than 0")
+	}
+	spacetimes := bytes.Repeat([]byte(SPACE), prof*12)
+	fmt.Printf("%s", string(spacetimes))
+	if m.metadata[n.Data].child == "right" {
+		fmt.Printf("%s", "┌─")
+	}
+	if m.metadata[n.Data].child == "left" {
+		fmt.Printf("%s", "└─")
+	}
 	if err := PrintData(n.Data, m.Max); err != nil {
 		log.Fatalln("func PrintData failed:", err)
 	}
-	// fmt.Printf(" Level: [%d]", m.GetDepth())
 	fmt.Println()
 	fmt.Println()
 	// PRINT AREA
