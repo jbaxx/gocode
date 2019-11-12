@@ -249,6 +249,20 @@ func (n *Node) NodeNaiveInsert(data int) {
 //             └─[ 3]─┤
 //                    └─[ 1]
 //
+//                      ┌─[18]
+//               ┌─[16]─┘
+//        ┌─[14]─┤
+//                      ┌─[13]
+//               └─[12]─┤
+//                             ┌─[11]
+//                      └─[10]─┤
+//                             └─[ 9]
+// [ 7]─┤
+//               ┌─[ 6]
+//        └─[ 5]─┤
+//                      ┌─[ 4]
+//               └─[ 3]─┤
+//                      └─[ 1]
 //
 // ### Ready prototype with blanks
 // 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
@@ -311,6 +325,7 @@ type metaFormat struct {
 type nodeMetadata struct {
 	depth int
 	child string
+	leaf  bool
 }
 
 func (m *metaFormat) Increment() {
@@ -329,15 +344,17 @@ func (m *metaFormat) GetDepth() int {
 	return m.depth
 }
 
-func (m *metaFormat) MapNodeDepth(i, data int) {
-	if _, ok := m.level[data]; !ok {
-		m.level[data] = i
+func (m *metaFormat) MapNodeDepth(key, v int) {
+	// old implementation
+	if _, ok := m.level[key]; !ok {
+		m.level[key] = v
 	}
-	if _, ok := m.metadata[data]; !ok {
-		m.metadata[data] = &nodeMetadata{}
-		m.metadata[data].depth = i
+	// new implementation
+	if _, ok := m.metadata[key]; !ok {
+		m.metadata[key] = &nodeMetadata{}
+		m.metadata[key].depth = v
 	} else {
-		m.metadata[data].depth = i
+		m.metadata[key].depth = v
 	}
 
 }
@@ -345,6 +362,8 @@ func (m *metaFormat) MapNodeDepth(i, data int) {
 func (m *metaFormat) SetChildSide(key int, s string) {
 	if _, ok := m.metadata[key]; !ok {
 		m.metadata[key] = &nodeMetadata{}
+		m.metadata[key].child = s
+	} else {
 		m.metadata[key].child = s
 	}
 }
@@ -367,11 +386,11 @@ func (b *BST) PrittyRoot() {
 	b.Root.prittyNode(mf)
 
 	fmt.Println("Print Format: ")
-	for k, v := range mf.metadata {
-		fmt.Printf("Key: %d\tChildSide: %s\tDepth: %d\n", k, (*v).child, (*v).depth)
-		fmt.Printf("Key: %d\tChildSide: %q\tDepth: %v\n", k, v.child, v.depth)
-		fmt.Printf("Key: %d\tmetadata: %#v\n", k, v)
-	}
+	// for k, v := range mf.metadata {
+	// 	fmt.Printf("Key: %d\tChildSide: %s\tDepth: %d\n", k, (*v).child, (*v).depth)
+	// 	fmt.Printf("Key: %d\tChildSide: %q\tDepth: %v\n", k, v.child, v.depth)
+	// 	fmt.Printf("Key: %d\tmetadata: %#v\n", k, v)
+	// }
 }
 
 func (n *Node) Peek() int {
@@ -387,7 +406,7 @@ func (n *Node) scanNode(m *metaFormat) {
 		n.Right.scanNode(m)
 	}
 
-	m.MapNodeDepth(m.GetDepth(), n.Data)
+	m.MapNodeDepth(n.Data, m.GetDepth())
 
 	if n.Left != nil {
 		m.SetChildSide(n.Left.Peek(), "left")
@@ -403,11 +422,14 @@ func (n *Node) prittyNode(m *metaFormat) {
 	}
 
 	// PRINT AREA
-	prof := m.metadata[n.Data].depth
+	prof := m.metadata[n.Data].depth * 7
 	if prof < 0 {
 		log.Fatalln("depth count is lower than 0")
 	}
-	spacetimes := bytes.Repeat([]byte(SPACE), prof*12)
+	if prof == 0 {
+		prof = 2
+	}
+	spacetimes := bytes.Repeat([]byte(SPACE), prof)
 	fmt.Printf("%s", string(spacetimes))
 	if m.metadata[n.Data].child == "right" {
 		fmt.Printf("%s", "┌─")
@@ -418,7 +440,16 @@ func (n *Node) prittyNode(m *metaFormat) {
 	if err := PrintData(n.Data, m.Max); err != nil {
 		log.Fatalln("func PrintData failed:", err)
 	}
-	fmt.Println()
+	if n.Left != nil && n.Right != nil {
+		fmt.Printf("%s", "─┤")
+	}
+	if n.Left == nil && n.Right != nil {
+		fmt.Printf("%s", "─┘")
+	}
+	if n.Left != nil && n.Right == nil {
+		fmt.Printf("%s", "─┐")
+	}
+	// fmt.Println()
 	fmt.Println()
 	// PRINT AREA
 
