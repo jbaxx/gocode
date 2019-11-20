@@ -1,5 +1,15 @@
 package bsarbol
 
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"strconv"
+	"unicode/utf8"
+)
+
 // ### Tree Print Ready prototype
 // 012345678900123456789001234567890
 //                    ┌─[18]

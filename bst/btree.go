@@ -2,13 +2,7 @@
 package bsarbol
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"log"
-	"os"
-	"strconv"
-	"unicode/utf8"
 )
 
 // BST defines a Binary Search Tree structure
