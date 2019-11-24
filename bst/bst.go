@@ -12,45 +12,6 @@ type Node struct {
 	Left, Right *Node
 }
 
-type Tracker interface {
-	SetDepth(i int)
-	GetDepth() int
-	Increment()
-	Decrement()
-}
-
-//                 7
-//              /    \
-//            5       10
-//         /    \    /  \
-//        3      6  9   12
-//      /  \
-//     1    4
-
-type nodeLevel struct {
-	level int
-}
-
-func (n *nodeLevel) Increment() {
-	n.level++
-}
-
-func (n *nodeLevel) Decrement() {
-	n.level--
-}
-
-func (n *nodeLevel) SetDepth(i int) {
-	n.level = i
-}
-
-func (n *nodeLevel) GetDepth() int {
-	return n.level
-}
-
-func NewNodeLevel() *nodeLevel {
-	return &nodeLevel{level: 0}
-}
-
 // NaiveInsert inserts the supplied data value into the tree
 // is very naive and makes the insertion without balancing the tree.
 // Also allocates the Root node in case it's not present.
