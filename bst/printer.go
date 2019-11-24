@@ -92,8 +92,40 @@ const (
 	SPACE      = " "
 )
 
-// metaFormat holds metadata that will help
-// format the printed tree
+// Tracker interface defines the methods needed to keep track of node depth
+type Tracker interface {
+	SetDepth(i int)
+	GetDepth() int
+	Increment()
+	Decrement()
+}
+
+type nodeLevel struct {
+	level int
+}
+
+func (n *nodeLevel) Increment() {
+	n.level++
+}
+
+func (n *nodeLevel) Decrement() {
+	n.level--
+}
+
+func (n *nodeLevel) SetDepth(i int) {
+	n.level = i
+}
+
+func (n *nodeLevel) GetDepth() int {
+	return n.level
+}
+
+func NewNodeLevel() *nodeLevel {
+	return &nodeLevel{level: 0}
+}
+
+// metaFormat holds metadata that will help format the printed tree
+// metaFormat may implement the Tracker interface
 type metaFormat struct {
 	// Max tells the biggest number of the tree
 	// This helps format the node block spaces
