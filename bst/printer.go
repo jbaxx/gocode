@@ -191,22 +191,6 @@ func NewMetaFormat() *metaFormat {
 	}
 }
 
-func (b *BST) PrittyRoot() {
-
-	mf := NewMetaFormat()
-	mf.SetDepth(-1)
-
-	b.Root.scanNode(mf)
-	b.Root.prittyNode(mf)
-
-	fmt.Println("Print Format: ")
-	// for k, v := range mf.metadata {
-	// 	fmt.Printf("Key: %d\tChildSide: %s\tDepth: %d\n", k, (*v).child, (*v).depth)
-	// 	fmt.Printf("Key: %d\tChildSide: %q\tDepth: %v\n", k, v.child, v.depth)
-	// 	fmt.Printf("Key: %d\tmetadata: %#v\n", k, v)
-	// }
-}
-
 func (n *Node) Peek() int {
 	return n.Data
 }
@@ -227,6 +211,22 @@ func (n *Node) scanNode(m *metaFormat) {
 		n.Left.scanNode(m)
 	}
 
+}
+
+func (b *BST) PrittyRoot() {
+
+	mf := NewMetaFormat()
+	mf.SetDepth(-1)
+
+	b.Root.scanNode(mf)
+	b.Root.prittyNode(mf)
+
+	fmt.Println("Print Format: ")
+	for k, v := range mf.metadata {
+		fmt.Printf("Key: %d\tChildSide: %s\tDepth: %d\n", k, (*v).child, (*v).depth)
+		fmt.Printf("Key: %d\tChildSide: %q\tDepth: %v\n", k, v.child, v.depth)
+		fmt.Printf("Key: %d\tmetadata: %#v\n", k, v)
+	}
 }
 
 func (n *Node) prittyNode(m *metaFormat) {
