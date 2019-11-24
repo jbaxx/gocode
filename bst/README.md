@@ -2,12 +2,13 @@
 
 ### Benchmarking of the functions to print the nodes block
 
-// pkg: github.com/jbaxx/gocode/bst
-// BenchmarkPrintDataBytes-8                3323289               363 ns/op
-// BenchmarkPrintDataBytesMath-8            4296769               281 ns/op
-// BenchmarkPrintDataStrings-8              2971926               402 ns/op
+// pkg: github.com/jbaxx/gocode/bst  
+// BenchmarkPrintDataBytes-8                3323289               363 ns/op  
+// BenchmarkPrintDataBytesMath-8            4296769               281 ns/op  
+// BenchmarkPrintDataStrings-8              2971926               402 ns/op  
 
 #### Output of the functions
+
 [12]  
 [10]  
 [ 9]  
