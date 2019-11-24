@@ -1,35 +1,8 @@
-// Package bsarbol implements a Binary Search Tree
 package bsarbol
 
 import (
 	"fmt"
 )
-
-// BST defines a Binary Search Tree structure
-type BST struct {
-	Root *Node
-}
-
-// Node defines the nodes for the Binary Search Tree
-type Node struct {
-	Data        int
-	Left, Right *Node
-}
-
-type Tracker interface {
-	SetDepth(i int)
-	GetDepth() int
-	Increment()
-	Decrement()
-}
-
-//                 7
-//              /    \
-//            5       10
-//         /    \    /  \
-//        3      6  9   12
-//      /  \
-//     1    4
 
 // Traverse method traverses the tree applying a function
 // to each Data element of the tree nodes.
@@ -121,32 +94,15 @@ func (n *Node) PostOrderTraversal(fn func(value int)) {
 	fn(n.Data)
 }
 
-type nodeLevel struct {
-	level int
+// PrintNode is an auxiliary function to supply to Traverse method
+// and print to stdout the Data element of each node.
+func PrintNode(value int) {
+	fmt.Printf("Node: %d\n", value)
 }
 
-func (n *nodeLevel) Increment() {
-	n.level++
-}
-
-func (n *nodeLevel) Decrement() {
-	n.level--
-}
-
-func (n *nodeLevel) SetDepth(i int) {
-	n.level = i
-}
-
-func (n *nodeLevel) GetDepth() int {
-	return n.level
-}
-
-func NewNodeLevel() *nodeLevel {
-	return &nodeLevel{level: 0}
-}
-
-// TraverseLevel method traverses the tree applying a function
-// to each Data element of the tree nodes.
+// TraverseLevel method traverses the tree
+// while keeps track of the current node depth
+// Depth is tracked using the Tracker interface
 func (b *BST) TraverseLevel(fnl func(value int, levelTracker Tracker), traverseType string) {
 
 	if traverseType == "" {
@@ -166,8 +122,9 @@ func (b *BST) TraverseLevel(fnl func(value int, levelTracker Tracker), traverseT
 	}
 }
 
-// IOT is called by the TraverseLevel method
-// to traverse the tree in In Order order and applies the supplied function.
+// IOT is called by the TraverseLevel method to keep track of the current node depth,
+// traverses the tree in In Order order and applies the supplied function.
+// Depth is tracked using the Tracker interface
 func (n *Node) IOT(fnl func(value int, levelTracker Tracker), level Tracker) {
 
 	level.Increment()
@@ -184,40 +141,4 @@ func (n *Node) IOT(fnl func(value int, levelTracker Tracker), level Tracker) {
 		n.Right.IOT(fnl, level)
 	}
 
-}
-
-// PrintNode is an auxiliary function to supply to Traverse method
-// and print to stdout the Data element of each node.
-func PrintNode(value int) {
-	fmt.Printf("Node: %d\n", value)
-}
-
-// NaiveInsert inserts the supplied data value into the tree
-// is very naive and makes the insertion without balancing the tree.
-// Also allocates the Root node in case it's not present.
-func (b *BST) NaiveInsert(data int) {
-	if b.Root == nil {
-		b.Root = &Node{Data: data}
-		return
-	}
-	b.Root.NodeNaiveInsert(data)
-}
-
-// NodeNaiveInsert is called by the NaiveInsert method to allocate
-// the nodes in the tree in binary search order
-func (n *Node) NodeNaiveInsert(data int) {
-	if data < n.Data {
-		if n.Left == nil {
-			n.Left = &Node{Data: data}
-			return
-		}
-		n.Left.NodeNaiveInsert(data)
-	}
-	if data > n.Data {
-		if n.Right == nil {
-			n.Right = &Node{Data: data}
-			return
-		}
-		n.Right.NodeNaiveInsert(data)
-	}
 }
