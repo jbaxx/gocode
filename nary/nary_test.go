@@ -106,3 +106,15 @@ func TestInsert(t *testing.T) {
 		t.Errorf("got %v\n, want %v", got, want)
 	}
 }
+
+func ExamplePrintBlock() {
+	nt := NewNaryTree()
+	nt.Insert([]int{1, 3, 5})
+	nt.Insert([]int{1, 3, 8})
+	nt.Insert([]int{2, 4, 6})
+	nt.Insert([]int{2, 4, 6, 7})
+	nt.Insert([]int{2, 4, 6, 8})
+	nt.Insert([]int{5, 6})
+	nt.Insert([]int{8, 6})
+	nt.PrintBlock()
+}
