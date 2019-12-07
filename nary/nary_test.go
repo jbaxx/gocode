@@ -74,3 +74,25 @@ func TestPrintTree(t *testing.T) {
 	}
 
 }
+
+func TestInsert(t *testing.T) {
+	h := &NaryTree{
+		Root: &Node{
+			Key:  1,
+			Data: "uno",
+			Nodes: []*Node{
+				&Node{Key: 3, Data: "tres", Nodes: []*Node{
+					&Node{Key: 5, Data: "cinco"},
+					&Node{Key: 8, Data: "ocho"}},
+				},
+			},
+		},
+	}
+	h.PrintBlock()
+
+	q := NewNaryTree()
+	q.Insert([]int{1, 3, 5})
+	q.Insert([]int{1, 3, 8})
+	q.Insert([]int{9, 3, 5})
+	q.PrintBlock()
+}

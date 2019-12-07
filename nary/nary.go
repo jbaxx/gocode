@@ -19,6 +19,52 @@ type Node struct {
 	Nodes []*Node
 }
 
+// [1 3{[6 7]} 5]
+
+func (n *Node) find(e int) (int, bool) {
+	for i, w := range n.Nodes {
+		if w.Key == e {
+			return i, true
+		}
+	}
+	return 0, false
+}
+
+func (n *Node) insert(trace []int) {
+	// does the current node exist?
+	//     if not, append
+	//     if yes, insert
+	if len(trace) == 0 { // makes below pop safe
+		return
+	}
+
+	current, trace := trace[0], trace[1:]
+
+	index, ok := n.find(current)
+	if !ok {
+		n.Nodes = append(n.Nodes, &Node{Key: current})
+		n.Nodes[len(n.Nodes)-1].insert(trace)
+		return
+	}
+
+	n.Nodes[index].insert(trace)
+
+}
+
+func (h *NaryTree) Insert(trace []int) {
+	h.Root.insert(trace)
+}
+
+func NewNaryTree() *NaryTree {
+	return &NaryTree{
+		Root: &Node{
+			Key:   0,
+			Data:  "",
+			Nodes: []*Node{},
+		},
+	}
+}
+
 // String implements the stringer interface for the Node
 // printing the Key and Data together
 func (n *Node) String() string {
@@ -28,6 +74,10 @@ func (n *Node) String() string {
 // PrintBlock prints the NaryTree in a format similar to the unix command: tree
 func (h *NaryTree) PrintBlock() {
 	lost := []bool{}
+	if h.Root == nil {
+		fmt.Printf("empty tree\n")
+		return
+	}
 	h.Root.printBlock(lost)
 }
 
@@ -57,6 +107,8 @@ func (t *Node) printBlock(sl stackLast) {
 type stackLast []bool
 
 // String implements the stringer interface, to pass the stackLast to the io Writer
+// references: https://en.wikipedia.org/wiki/Box-drawing_character
+// references: https://en.wikipedia.org/wiki/Code_page_437
 // This is a section of a printed tree along with the stackLast trace
 // for each node and its ancestors.
 // If the node itself is last in its own []*Node slice we preceed it with an elbow: └───
