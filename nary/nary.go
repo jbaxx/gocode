@@ -19,15 +19,22 @@ type Node struct {
 	Nodes []*Node
 }
 
-// [1 3{[6 7]} 5]
-
-func (n *Node) find(e int) (int, bool) {
-	for i, w := range n.Nodes {
-		if w.Key == e {
-			return i, true
-		}
+// NewNaryTree returns a NaryTree with a fixed Root node
+func NewNaryTree() *NaryTree {
+	return &NaryTree{
+		Root: &Node{
+			Key:   0,
+			Data:  "i am root",
+			Nodes: []*Node{},
+		},
 	}
-	return 0, false
+}
+
+// Insert implements a method to insert elements into the nary tree.
+// It expects arrays that represent the path from root to leaf only.
+// It does not support insertion based on a keyed element inside the tree
+func (h *NaryTree) Insert(trace []int) {
+	h.Root.insert(trace)
 }
 
 func (n *Node) insert(trace []int) {
@@ -51,18 +58,13 @@ func (n *Node) insert(trace []int) {
 
 }
 
-func (h *NaryTree) Insert(trace []int) {
-	h.Root.insert(trace)
-}
-
-func NewNaryTree() *NaryTree {
-	return &NaryTree{
-		Root: &Node{
-			Key:   0,
-			Data:  "",
-			Nodes: []*Node{},
-		},
+func (n *Node) find(e int) (int, bool) {
+	for i, w := range n.Nodes {
+		if w.Key == e {
+			return i, true
+		}
 	}
+	return 0, false
 }
 
 // String implements the stringer interface for the Node

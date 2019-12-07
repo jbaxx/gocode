@@ -76,23 +76,33 @@ func TestPrintTree(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	h := &NaryTree{
+	want := &NaryTree{
 		Root: &Node{
-			Key:  1,
-			Data: "uno",
+			Key:  0,
+			Data: "i am root",
 			Nodes: []*Node{
-				&Node{Key: 3, Data: "tres", Nodes: []*Node{
-					&Node{Key: 5, Data: "cinco"},
-					&Node{Key: 8, Data: "ocho"}},
-				},
-			},
-		},
+				&Node{
+					Key: 1,
+					Nodes: []*Node{
+						&Node{Key: 3, Nodes: []*Node{
+							&Node{Key: 5},
+							&Node{Key: 8}}}}}}},
 	}
-	h.PrintBlock()
+	fmt.Println("Manual insert: ")
+	want.PrintBlock()
 
-	q := NewNaryTree()
-	q.Insert([]int{1, 3, 5})
-	q.Insert([]int{1, 3, 8})
-	q.Insert([]int{9, 3, 5})
-	q.PrintBlock()
+	got := NewNaryTree()
+	got.Insert([]int{1, 3, 5})
+	got.Insert([]int{1, 3, 8})
+	fmt.Println()
+	fmt.Println("Method insert: ")
+	got.PrintBlock()
+
+	if !reflect.DeepEqual(got, want) {
+		fmt.Println("got: ")
+		got.PrintBlock()
+		fmt.Println("want: ")
+		want.PrintBlock()
+		t.Errorf("got %v\n, want %v", got, want)
+	}
 }
