@@ -107,6 +107,7 @@ func TestInsert(t *testing.T) {
 	}
 }
 
+/*
 func ExamplePrintBlock() {
 	nt := NewNaryTree()
 	nt.Insert([]int{1, 3, 5})
@@ -117,4 +118,19 @@ func ExamplePrintBlock() {
 	nt.Insert([]int{5, 6})
 	nt.Insert([]int{8, 6})
 	nt.PrintBlock()
+	// Output: [0] i am root
+	// ├─── [1]
+	// │    └─── [3]
+	// │         ├─── [5]
+	// │         └─── [8]
+	// ├─── [2]
+	// │    └─── [4]
+	// │         └─── [6]
+	// │              ├─── [7]
+	// │              └─── [8]
+	// ├─── [5]
+	// │    └─── [6]
+	// └─── [8]
+	//      └─── [6]
 }
+*/
