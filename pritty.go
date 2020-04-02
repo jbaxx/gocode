@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/jbaxx/gocode/bst"
 )
 
@@ -28,7 +29,7 @@ func main() {
 
 	bst := &bsarbol.BST{
 		Root: &bsarbol.Node{
-			Data: 7,
+			Data: 6,
 			Right: &bsarbol.Node{
 				Data: 14,
 				Right: &bsarbol.Node{
